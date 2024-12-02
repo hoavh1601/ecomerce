@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Table, Card, Space, Input, Tag } from "antd";
-import { useGetOrdersQuery } from "../../features/admin/adminApi";
+import { useGetAdminOrdersQuery } from "../../features/admin/adminApi";
+
 const { Search } = Input;
 
 const Orders = () => {
@@ -10,65 +11,56 @@ const Orders = () => {
     limit: 10,
   });
 
-  const { data, isLoading } = useGetOrdersQuery(filters);
+  const { data, isLoading } = useGetAdminOrdersQuery(filters);
 
   const columns = [
     {
       title: "Order ID",
       dataIndex: "_id",
       key: "_id",
+      render: (id) => `#${id.slice(-6)}`,
     },
     {
       title: "Customer",
       dataIndex: ["user", "fullName"],
-      key: "user",
+      key: "customer",
     },
     {
       title: "Total Amount",
       dataIndex: "totalAmount",
       key: "totalAmount",
-      render: (amount) => `$${amount}`,
+      render: (amount) => `$${amount.toFixed(2)}`,
     },
     {
       title: "Status",
       dataIndex: "status",
       key: "status",
-      render: (status) => (
-        <Tag
-          color={
-            status === "PENDING"
-              ? "gold"
-              : status === "PROCESSING"
-              ? "blue"
-              : status === "COMPLETED"
-              ? "green"
-              : "red"
-          }
-        >
-          {status}
-        </Tag>
-      ),
+      render: (status) => {
+        const colors = {
+          PENDING: "gold",
+          PROCESSING: "blue",
+          COMPLETED: "green",
+          CANCELLED: "red",
+        };
+        return <Tag color={colors[status]}>{status}</Tag>;
+      },
     },
     {
       title: "Date",
       dataIndex: "createdAt",
       key: "createdAt",
-      render: (date) => new Date(date).toLocaleDateString(),
+      render: (date) => new Date(date).toLocaleString(),
     },
   ];
 
   return (
-    <Card>
+    <Card title="Orders Management">
       <Space style={{ marginBottom: 16 }}>
         <Search
           placeholder="Search orders"
           allowClear
           onSearch={(value) =>
-            setFilters((prev) => ({
-              ...prev,
-              search: value,
-              page: 1,
-            }))
+            setFilters((prev) => ({ ...prev, search: value, page: 1 }))
           }
           style={{ width: 300 }}
         />
@@ -89,4 +81,5 @@ const Orders = () => {
     </Card>
   );
 };
+
 export default Orders;

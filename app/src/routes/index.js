@@ -12,5 +12,7 @@ router.use("/products", productRoutes);
 // router.use('/orders', orderRoutes);
 router.use("/statistics", statisticRoutes);
 router.use("/categories", categories);
+const adminRoutes = require("./admin.route");
+router.use("/admin", adminRoutes);
 
 module.exports = router;

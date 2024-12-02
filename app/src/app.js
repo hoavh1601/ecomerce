@@ -1,4 +1,4 @@
-require('dotenv').config();
+require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
@@ -15,12 +15,10 @@ app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-
 app.use("/api", routes);
 
 // app.use(globalErrorHandler);
 app.use("/uploads", express.static("uploads"));
-
 
 const PORT = process.env.PORT || 8000;
 

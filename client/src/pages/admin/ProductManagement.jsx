@@ -1,38 +1,30 @@
-// src/pages/admin/Products.jsx
 import React, { useState } from "react";
-import { Table, Card, Space, Input, Button, Modal, message } from "antd";
-import { DeleteOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
+import { Table, Card, Space, Input, Button, message } from "antd";
+import { DeleteOutlined } from "@ant-design/icons";
 import {
-  useGetProductsQuery,
+  useGetAdminProductsQuery,
   useDeleteProductMutation,
 } from "../../features/admin/adminApi";
+
 const { Search } = Input;
-const { confirm } = Modal;
 
 const Products = () => {
   const [filters, setFilters] = useState({
-    search: "",
+    name: "",
     page: 1,
     limit: 10,
   });
 
-  const { data, isLoading } = useGetProductsQuery(filters);
+  const { data, isLoading } = useGetAdminProductsQuery(filters);
   const [deleteProduct] = useDeleteProductMutation();
 
-  const handleDelete = (productId) => {
-    confirm({
-      title: "Are you sure you want to delete this product?",
-      icon: <ExclamationCircleOutlined />,
-      content: "This action cannot be undone",
-      onOk: async () => {
-        try {
-          await deleteProduct(productId).unwrap();
-          message.success("Product deleted successfully");
-        } catch (error) {
-          message.error("Failed to delete product");
-        }
-      },
-    });
+  const handleDelete = async (id) => {
+    try {
+      await deleteProduct(id).unwrap();
+      message.success("Product deleted successfully");
+    } catch (error) {
+      message.error("Failed to delete product");
+    }
   };
 
   const columns = [
@@ -42,7 +34,7 @@ const Products = () => {
       key: "images",
       render: (images) => (
         <img
-          src={images[0]}
+          src={`${import.meta.env.VITE_API_IMAGE_URL}${images[0]}`}
           alt="product"
           style={{ width: 50, height: 50, objectFit: "cover" }}
         />
@@ -60,9 +52,19 @@ const Products = () => {
       render: (price) => `$${price}`,
     },
     {
+      title: "Category",
+      dataIndex: ["category", "name"],
+      key: "category",
+    },
+    {
       title: "Seller",
       dataIndex: ["seller", "fullName"],
       key: "seller",
+    },
+    {
+      title: "Stock",
+      dataIndex: "stock",
+      key: "stock",
     },
     {
       title: "Actions",
@@ -78,17 +80,13 @@ const Products = () => {
   ];
 
   return (
-    <Card>
+    <Card title="Products Management">
       <Space style={{ marginBottom: 16 }}>
         <Search
           placeholder="Search products"
           allowClear
           onSearch={(value) =>
-            setFilters((prev) => ({
-              ...prev,
-              search: value,
-              page: 1,
-            }))
+            setFilters((prev) => ({ ...prev, name: value, page: 1 }))
           }
           style={{ width: 300 }}
         />

@@ -1,12 +1,11 @@
 import React, { useState } from "react";
-import { Table, Card, Space, Input, Tag, Button, Modal, message } from "antd";
+import { Table, Card, Space, Input, Tag, Button, message } from "antd";
 import {
   useGetUsersQuery,
   useUpdateUserStatusMutation,
 } from "../../features/admin/adminApi";
 
 const { Search } = Input;
-const { confirm } = Modal;
 
 const Users = () => {
   const [filters, setFilters] = useState({
@@ -16,30 +15,18 @@ const Users = () => {
   });
 
   const { data, isLoading } = useGetUsersQuery(filters);
-  const [updateUserStatus] = useUpdateUserStatusMutation();
+  const [updateStatus] = useUpdateUserStatusMutation();
 
-  const handleBanUser = (userId, currentStatus) => {
-    confirm({
-      title: `Are you sure you want to ${
-        currentStatus === "ACTIVE" ? "ban" : "unban"
-      } this user?`,
-      icon: <ExclamationCircleOutlined />,
-      onOk: async () => {
-        try {
-          await updateUserStatus({
-            userId,
-            status: currentStatus === "ACTIVE" ? "BANNED" : "ACTIVE",
-          }).unwrap();
-          message.success(
-            `User ${
-              currentStatus === "ACTIVE" ? "banned" : "unbanned"
-            } successfully`
-          );
-        } catch (error) {
-          message.error("Operation failed");
-        }
-      },
-    });
+  const handleStatusChange = async (userId, currentStatus) => {
+    try {
+      await updateStatus({
+        userId,
+        status: currentStatus === "ACTIVE" ? "BANNED" : "ACTIVE",
+      }).unwrap();
+      message.success("User status updated successfully");
+    } catch (error) {
+      message.error("Failed to update user status");
+    }
   };
 
   const columns = [
@@ -75,7 +62,7 @@ const Users = () => {
       render: (_, record) => (
         <Button
           danger={record.status === "ACTIVE"}
-          onClick={() => handleBanUser(record._id, record.status)}
+          onClick={() => handleStatusChange(record._id, record.status)}
         >
           {record.status === "ACTIVE" ? "Ban" : "Unban"}
         </Button>
@@ -84,17 +71,13 @@ const Users = () => {
   ];
 
   return (
-    <Card>
+    <Card title="Users Management">
       <Space style={{ marginBottom: 16 }}>
         <Search
-          placeholder="Search by name or email"
+          placeholder="Search users"
           allowClear
           onSearch={(value) =>
-            setFilters((prev) => ({
-              ...prev,
-              search: value,
-              page: 1,
-            }))
+            setFilters((prev) => ({ ...prev, search: value, page: 1 }))
           }
           style={{ width: 300 }}
         />
@@ -115,4 +98,5 @@ const Users = () => {
     </Card>
   );
 };
+
 export default Users;

@@ -4,7 +4,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 export const adminApi = createApi({
   reducerPath: "adminApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: "http://localhost:8000/api",
+    baseUrl: import.meta.env.VITE_API_URL || "http://localhost:8000/api",
     prepareHeaders: (headers) => {
       const token = localStorage.getItem("token");
       if (token) {
@@ -13,36 +13,81 @@ export const adminApi = createApi({
       return headers;
     },
   }),
+  tagTypes: ["Users", "Products", "Orders", "Categories"],
   endpoints: (builder) => ({
-    getDashboardStats: builder.query({
-      query: () => "/statistics/dashboard",
-    }),
-    getRevenueStats: builder.query({
-      query: (period) => `/statistics/revenue?period=${period}`,
-    }),
-    getTopProducts: builder.query({
-      query: (limit = 10) => `/statistics/top-products?limit=${limit}`,
-    }),
+    // Users management
     getUsers: builder.query({
       query: (params) => ({
-        url: "/users",
+        url: "/admin/users",
         params,
       }),
+      providesTags: ["Users"],
     }),
     updateUserStatus: builder.mutation({
       query: ({ userId, status }) => ({
-        url: `/users/${userId}/status`,
+        url: `/admin/users/${userId}/status`,
         method: "PATCH",
         body: { status },
       }),
+      invalidatesTags: ["Users"],
+    }),
+
+    // Products management
+    getAdminProducts: builder.query({
+      query: (params) => ({
+        url: "/admin/products",
+        params,
+      }),
+      providesTags: ["Products"],
+    }),
+    deleteProduct: builder.mutation({
+      query: (id) => ({
+        url: `/admin/products/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Products"],
+    }),
+
+    // Categories management
+    getCategories: builder.query({
+      query: () => "/admin/categories",
+      providesTags: ["Categories"],
+    }),
+    createCategory: builder.mutation({
+      query: (data) => ({
+        url: "/admin/categories",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["Categories"],
+    }),
+    updateCategory: builder.mutation({
+      query: ({ id, data }) => ({
+        url: `/admin/categories/${id}`,
+        method: "PUT",
+        body: data,
+      }),
+      invalidatesTags: ["Categories"],
+    }),
+
+    // Orders management
+    getAdminOrders: builder.query({
+      query: (params) => ({
+        url: "/admin/orders",
+        params,
+      }),
+      providesTags: ["Orders"],
     }),
   }),
 });
 
 export const {
-  useGetDashboardStatsQuery,
-  useGetRevenueStatsQuery,
-  useGetTopProductsQuery,
   useGetUsersQuery,
   useUpdateUserStatusMutation,
+  useGetAdminProductsQuery,
+  useDeleteProductMutation,
+  useGetCategoriesQuery,
+  useCreateCategoryMutation,
+  useUpdateCategoryMutation,
+  useGetAdminOrdersQuery,
 } = adminApi;
