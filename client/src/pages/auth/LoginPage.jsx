@@ -51,10 +51,8 @@ const LoginPage = () => {
 
   return (
     <div className="flex min-h-screen">
-      {/* Left side - Login Form */}
       <div className="flex items-center justify-center flex-1 p-8 sm:p-12 lg:p-16">
         <div className="w-full max-w-md space-y-8">
-          {/* Logo và Heading */}
           <div className="text-center">
             <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">
               Chào mừng trở lại
@@ -63,7 +61,6 @@ const LoginPage = () => {
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="mt-8 space-y-6">
-            {/* Email Input */}
             <div className="space-y-2">
               <label
                 htmlFor="email"
@@ -91,7 +88,6 @@ const LoginPage = () => {
               )}
             </div>
 
-            {/* Password Input */}
             <div className="space-y-2">
               <label
                 htmlFor="password"

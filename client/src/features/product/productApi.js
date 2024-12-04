@@ -1,14 +1,14 @@
 // src/features/product/productApi.js
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export const productApi = createApi({
-  reducerPath: 'productApi',
+  reducerPath: "productApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: import.meta.env.VITE_API_URL || 'http://localhost:8000/api',
+    baseUrl: import.meta.env.VITE_API_URL || "http://localhost:8000/api",
   }),
   endpoints: (builder) => ({
     getFeaturedProducts: builder.query({
-      query: () => '/products?featured=true',
+      query: () => "/products?featured=true",
     }),
     getLatestProducts: builder.query({
       query: (limit = 10) => `/products?limit=${limit}&sort=-createdAt`,
@@ -17,7 +17,7 @@ export const productApi = createApi({
       query: (limit = 10) => `/products?limit=${limit}&sort=-views`,
     }),
     getProductsByCategory: builder.query({
-      query: ({ categoryId, limit = 10 }) => 
+      query: ({ categoryId, limit = 10 }) =>
         `/products?categoryId=${categoryId}&limit=${limit}`,
     }),
 
@@ -26,7 +26,7 @@ export const productApi = createApi({
     }),
     getProducts: builder.query({
       query: (params) => ({
-        url: '/products',
+        url: "/products",
         params: {
           page: params?.page || 1,
           limit: params?.limit || 12,
@@ -36,7 +36,15 @@ export const productApi = createApi({
         },
       }),
     }),
-
+    getPublicProducts: builder.query({
+      query: (params) => ({
+        url: "/products/public",
+        params,
+      }),
+    }),
+    getCategories: builder.query({
+      query: () => "/categories",
+    }),
     getProduct: builder.query({
       query: (id) => `/products/${id}`,
     }),
@@ -51,4 +59,6 @@ export const {
   useSearchProductsQuery,
   useGetProductsQuery,
   useGetProductQuery,
+  useGetCategoriesQuery,
+  useGetPublicProductsQuery,
 } = productApi;
