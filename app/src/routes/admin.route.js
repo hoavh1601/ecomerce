@@ -12,5 +12,6 @@ router.post("/categories", adminController.createCategory);
 router.put("/categories/:id", adminController.updateCategory);
 
 router.get("/orders", adminController.getOrders);
+router.get("/products", adminController.getProducts);
 
 module.exports = router;

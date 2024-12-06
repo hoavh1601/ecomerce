@@ -1,10 +1,23 @@
 // src/pages/HomePage.jsx
 import React, { useState } from "react";
-import { Card, Row, Col, Input, Select, InputNumber, Space } from "antd";
+import {
+  Card,
+  Row,
+  Col,
+  Input,
+  Select,
+  InputNumber,
+  Space,
+  Button,
+  message,
+} from "antd";
+import { ShoppingCartOutlined } from "@ant-design/icons";
 import {
   useGetPublicProductsQuery,
   useGetCategoriesQuery,
 } from "../../../features/product/productApi";
+import { useSelector, useDispatch } from "react-redux";
+import { addToCart } from "../../../features/cart/cartSlice";
 
 const { Search } = Input;
 
@@ -17,31 +30,58 @@ const HomePage = () => {
   const { data: products, isLoading } = useGetPublicProductsQuery(filters);
   const { data: categories } = useGetCategoriesQuery();
 
-  const ProductCard = ({ product }) => (
-    <Card
-      hoverable
-      cover={
-        <img
-          alt={product.name}
-          src={`${import.meta.env.VITE_API_IMAGE_URL}${product.images[0]}`}
-          style={{ height: 200, objectFit: "cover" }}
-        />
+  const ProductCard = ({ product }) => {
+    const { user } = useSelector((state) => state.auth);
+    const dispatch = useDispatch();
+
+    const handleAddToCart = () => {
+      if (!user) {
+        message.warning("Please login as buyer to add items to cart");
+        return;
       }
-    >
-      <Card.Meta
-        title={product.name}
-        description={
-          <>
-            <div>Price: ${product.price}</div>
-            {product.salePrice && (
-              <div style={{ color: "red" }}>Sale: ${product.salePrice}</div>
-            )}
-            <div>Category: {product.category?.name}</div>
-          </>
+      if (user.role !== "BUYER") {
+        message.warning("Only buyers can add items to cart");
+        return;
+      }
+      dispatch(addToCart(product));
+      message.success("Added to cart successfully");
+    };
+
+    return (
+      <Card
+        hoverable
+        cover={
+          <img
+            alt={product.name}
+            src={`${import.meta.env.VITE_API_IMAGE_URL}${product.images[0]}`}
+            style={{ height: 200, objectFit: "cover" }}
+          />
         }
-      />
-    </Card>
-  );
+        actions={[
+          <Button
+            type="primary"
+            icon={<ShoppingCartOutlined />}
+            onClick={handleAddToCart}
+          >
+            Add to Cart
+          </Button>,
+        ]}
+      >
+        <Card.Meta
+          title={product.name}
+          description={
+            <>
+              <div>Price: ${product.price}</div>
+              {product.salePrice && (
+                <div style={{ color: "red" }}>Sale: ${product.salePrice}</div>
+              )}
+              <div>Category: {product.category?.name}</div>
+            </>
+          }
+        />
+      </Card>
+    );
+  };
 
   return (
     <div style={{ padding: 24 }}>
@@ -58,11 +98,11 @@ const HomePage = () => {
         <Select
           style={{ width: 200 }}
           placeholder="Select category"
+          allowClear
           onChange={(value) =>
             setFilters((prev) => ({ ...prev, categoryId: value, page: 1 }))
           }
         >
-          <Select.Option value="all">All Categories</Select.Option>
           {categories?.data?.map((cat) => (
             <Select.Option key={cat._id} value={cat._id}>
               {cat.name}

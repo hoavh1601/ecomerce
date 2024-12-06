@@ -29,6 +29,7 @@ const SellerOrders = lazy(() => import("./pages/seller/Orders"));
 const ProductManagement = lazy(() => import("./pages/admin/ProductManagement"));
 const OrdersManagement = lazy(() => import("./pages/admin/OrderManagment"));
 const UserManagement = lazy(() => import("./pages/admin/UserManagement"));
+const Cart = lazy(() => import("./pages/buyer/Cart"));
 // const ProductForm = lazy(() => import('./components/page/seller/ProductForm'));
 
 // // Admin pages
@@ -59,6 +60,14 @@ const router = createBrowserRouter([
           <Suspense fallback={<LoadingScreen />}>
             <HomePage />
           </Suspense>
+        ),
+      },
+      {
+        path: "cart",
+        element: (
+          <PrivateRoute allowedRoles={["BUYER"]}>
+            <Cart />
+          </PrivateRoute>
         ),
       },
     ],

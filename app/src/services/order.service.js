@@ -25,13 +25,13 @@ class OrderService {
         throw new Error(`Insufficient stock for product ${product.name}`);
       }
 
-      const price = product.salePrice || product.price;
-      totalAmount += price * item.quantity;
+      // const price = product.salePrice || product.price;
+      // totalAmount += price * item.quantity;
 
       return {
         productId: new ObjectId(item.productId),
         quantity: item.quantity,
-        price: price,
+        price: orderData.total,
         name: product.name,
       };
     });
@@ -39,9 +39,9 @@ class OrderService {
     const order = {
       userId: new ObjectId(orderData.userId),
       items: orderItems,
-      totalAmount,
+      totalAmount: orderData.total,
       status: "PENDING",
-      shippingAddress: orderData.shippingAddress,
+      // shippingAddress: orderData.shippingAddress,
       createdAt: new Date(),
       updatedAt: new Date(),
     };

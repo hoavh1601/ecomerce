@@ -1,9 +1,7 @@
-// src/services/admin.service.js
 const { getDb } = require("../config/database");
 const { ObjectId } = require("mongodb");
 
 class AdminService {
-  // Users
   async getUsers(query = {}) {
     const db = getDb();
     const { page = 1, limit = 10, search = "" } = query;
@@ -49,7 +47,6 @@ class AdminService {
     return result.value;
   }
 
-  // Categories
   async getCategories() {
     const db = getDb();
     return await db.collection("categories").find().toArray();
@@ -121,6 +118,81 @@ class AdminService {
         total,
       },
     };
+  }
+  async getProducts(query = {}) {
+    try {
+      const db = getDb();
+      const {
+        page = 1,
+        limit = 10,
+        name = "",
+        minPrice,
+        maxPrice,
+        categoryId,
+        ...rest
+      } = query;
+
+      const skip = (page - 1) * Number(limit);
+
+      let filter = {};
+
+      if (name) {
+        filter.name = { $regex: name, $options: "i" };
+      }
+
+      if (Number(minPrice) || Number(maxPrice)) {
+        filter.price = {};
+        if (minPrice) filter.price.$gte = Number(minPrice);
+        if (maxPrice) filter.price.$lte = Number(maxPrice);
+      }
+
+      if (categoryId && categoryId !== "all") {
+        filter.categoryId = new ObjectId(categoryId);
+      }
+
+      // Use aggregation to get seller info
+      const aggregation = [
+        { $match: filter },
+        {
+          $lookup: {
+            from: "users",
+            localField: "sellerId",
+            foreignField: "_id",
+            as: "seller",
+          },
+        },
+        {
+          $lookup: {
+            from: "categories",
+            localField: "categoryId",
+            foreignField: "_id",
+            as: "category",
+          },
+        },
+        { $unwind: "$seller" },
+        { $unwind: { path: "$category", preserveNullAndEmptyArrays: true } },
+        { $skip: skip },
+        { $limit: Number(limit) },
+        { $sort: { createdAt: -1 } },
+      ];
+
+      const [products, total] = await Promise.all([
+        db.collection("products").aggregate(aggregation).toArray(),
+        db.collection("products").countDocuments(filter),
+      ]);
+
+      return {
+        data: products,
+        pagination: {
+          page: Number(page),
+          limit: Number(limit),
+          total,
+          totalPages: Math.ceil(total / Number(limit)),
+        },
+      };
+    } catch (error) {
+      throw error;
+    }
   }
 }
 

@@ -4,21 +4,24 @@ import authReducer from "../../features/auth/authSlice";
 import { authApi } from "../../features/auth/authApi";
 import { productApi } from "../../features/product/productApi";
 import productReducer from "../../features/product/productSlice";
-// import { orderApi } from '../../features/order/orderApi';
+import { orderApi } from "../../features/order/orderApi";
 import sellerReducer from "../../features/seller/sellerSlice";
 import { sellerApi } from "../../features/seller/sellerApi";
 import { adminApi } from "../../features/admin/adminApi";
+import cartReducer from "../../features/cart/cartSlice";
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
     [authApi.reducerPath]: authApi.reducer,
     [productApi.reducerPath]: productApi.reducer,
-    // [orderApi.reducerPath]: orderApi.reducer,
+    [orderApi.reducerPath]: orderApi.reducer,
+    order: orderApi.reducer,
     product: productReducer,
     [sellerApi.reducerPath]: sellerApi.reducer,
     seller: sellerReducer,
     [adminApi.reducerPath]: adminApi.reducer,
+    cart: cartReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(

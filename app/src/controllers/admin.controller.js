@@ -18,6 +18,21 @@ const adminController = {
     }
   },
 
+  getProducts: async (req, res) => {
+    try {
+      const products = await AdminService.getProducts(req.query);
+      res.json({
+        status: "success",
+        ...products,
+      });
+    } catch (error) {
+      res.status(400).json({
+        status: "error",
+        message: error.message,
+      });
+    }
+  },
+
   updateUserStatus: async (req, res) => {
     try {
       const user = await AdminService.updateUserStatus(
